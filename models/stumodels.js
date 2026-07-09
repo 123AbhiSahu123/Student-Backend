@@ -46,10 +46,7 @@ const Data = sequelize.define('Data', {
     timestamps:true
 })
 
-// User.hasOne(Data);  // output default "Datum" because is singular term of "Data".
-// Data.belongsTo(User);
-
-User.hasOne(Data, { as: "studentData", foreignKey: "UserId" });  // studentData is a alies of data 
-Data.belongsTo(User, { foreignKey: "UserId" });
+User.hasOne(Data, { as: "studentData", foreignKey: {name: "UserId", allowNull:false, unique:true}});  // studentData is a alies of data 
+Data.belongsTo(User, { foreignKey: {name: "UserId", allowNull: false, unique: true }});
 
 export {User, Data};

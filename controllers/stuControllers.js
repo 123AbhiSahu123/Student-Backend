@@ -1,114 +1,82 @@
-import { User, Data } from "../models/stumodels.js";
-import bcrypt from 'bcryptjs';
-import jwt from "jsonwebtoken";
+import {
+    registerUserService,
+    loginUserService,
+    registerDataService,
+    getProfileService,
+} from "../services/stuServices.js";
 
-
-// Register feature in Table {stutable} 
+// Register User
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({
-            name,
-            email,
-            password: hashedPassword
-        });
-        return res.status(201).json({
-            message: "User Created!", user:
-                { name, email }
-        });
+        const result = await registerUserService(req.body);
+
+        return res.status(201).json(result);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        return res.status(400).json({
+            error: err.message,
+        });
     }
 };
 
-//  Login feature in Table {stutable} 
+// Login User
 export const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-
-        const user = await User.findOne({ where: { email } });
-        if (!user) return res.status(404).json({ message: "User don't find!" });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Wrong password!" });
-
-        const token = jwt.sign(
-            { id: user.id },  //Object structure  
-            process.env.JWT_SECRET,   // secure environment Variable
-            { expiresIn: "1d" } //Expiry ()
-        );
+        const result = await loginUserService(req.body);
 
         const cookieOptions = {
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
-            sameSite: "lax"
-        }
+            sameSite: "lax",
+        };
 
-        return res.status(200)
-            .cookie("token", token, cookieOptions)   // sahi name , value and options
-            .json({
-                message: "Login Success", token
-            });
-    }
-    catch (err) {
-        res.status(500).json({ error: err.message });
+        return res
+            .status(200)
+            .cookie("token", result.token, cookieOptions)
+            .json(result);
+    } catch (err) {
+        const status =
+            err.message === "User don't find!"
+                ? 404
+                : err.message === "Wrong password!"
+                    ? 400
+                    : 500;
+
+        return res.status(status).json({
+            error: err.message,
+        });
     }
 };
 
-// registerData
+// Register Data
 export const registerData = async (req, res) => {
     try {
-        const { course, phone, age, location } = req.body;
+        const result = await registerDataService(
+            req.body,
+            req.user.id
+        );
 
-        const newData = await Data.create({
-            course,
-            phone,
-            age,
-            location,
-            UserId: req.user.id
-        });
-        return res.status(201).json({
-            message: "Data Created!", data:
-                { course, phone, age, location }
-        });
+        return res.status(201).json(result);
     } catch (err) {
-        // res.status(400).json({ error: err.message });
-        console.log(err.errors);
-
         return res.status(400).json({
             message: err.message,
-            details: err.errors?.map(e => e.message)  // err see in details 
+            details: err.errors?.map((e) => e.message),
         });
     }
 };
 
-// Profile Get
+// Get Profile
 export const getProfile = async (req, res) => {
+
     try {
-        const user = await User.findByPk(req.user.id, {
-            attributes: ['id', 'name', 'email'],
+        console.log(req.user); // { id: 1, ... }
+        const user = await getProfileService(req.user.id);
 
-            // include: [{
-            //     model: Data,  //only this used then output get "Datum" in default is singular term of "Data"
-            //     attributes: ['course', 'phone', 'age', 'location']
-            // }],
-
-            include: [{
-                model: Data,  //only this used then output get "Datum" in default is singular term of "Data"
-                as: "studentData",   //alies
-                attributes: ['course', 'phone', 'age', 'location']
-            }]
-        });
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
         return res.status(200).json(user);
     } catch (err) {
         return res.status(500).json({
-            error: err.message
-        })
+                error: err.message,
+            });
     }
-}
+};
+
+

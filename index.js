@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use('/api', stuRoutes);
 
+app.get('/health', (req, res) => {
+     res.send("Good ok")
+})
+
 const startServer = async () => {
    try {
     // Yahan actual mein connection test ho raha hai
