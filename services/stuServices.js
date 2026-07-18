@@ -71,7 +71,7 @@ export const registerDataService = async (body, userId) => {
 
 // Get Profile
 export const getProfileService = async (userId) => {
-    console.log("userId=", userId);
+
     const user = await User.findByPk(userId, { 
         attributes: ["id", "name", "email"],
         include: [
