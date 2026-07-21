@@ -48,6 +48,11 @@ export const loginUserService = async ({ email, password }) => {
     return {
         token,
         message: "Login Success",
+        user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        },
     };
 };
 
@@ -72,7 +77,7 @@ export const registerDataService = async (body, userId) => {
 // Get Profile
 export const getProfileService = async (userId) => {
 
-    const user = await User.findByPk(userId, { 
+    const user = await User.findByPk(userId, {
         attributes: ["id", "name", "email"],
         include: [
             {
@@ -82,7 +87,7 @@ export const getProfileService = async (userId) => {
             },
         ],
     });
-    
+
     if (!user) {
         throw new Error("User not found");
     }
