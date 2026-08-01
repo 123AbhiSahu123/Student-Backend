@@ -3,9 +3,12 @@ import sequelize from './config/db.js';
 import { User, Data } from './models/stumodels.js';
 import stuRoutes from './routes/sturoutes.js'
 import cors from "cors";
+import superAdminRoutes from "./superAdmin/routes/superAdminRoutes.js"
 
 const app = express();
 
+
+//temporary log see 
 app.use((req, res, next) => {
      console.log(req.method, req.url);
      next();
@@ -20,7 +23,7 @@ const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use('/api', stuRoutes);
-
+app.use("/api/superadmin", superAdminRoutes);
 app.get('/health', (req, res) => {
      res.send("Good ok")
 })
