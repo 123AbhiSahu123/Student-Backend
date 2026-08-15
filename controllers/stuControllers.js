@@ -79,4 +79,17 @@ export const getProfile = async (req, res) => {
     }
 };
 
+// Logout student dashboard
+export const logout = async(req, res) => {
+    try {
+        return res.status(200).json({
+            message: "Logout Succesful"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message
+        });
+    }
+}
+
 

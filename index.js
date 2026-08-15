@@ -34,6 +34,14 @@ const startServer = async () => {
           await sequelize.authenticate()
           console.log('Database Connected!')
 
+          
+          // Temporay log to see which database connect          
+          // const [result] = await sequelize.query(
+          //      "SELECT current_database(), current_user, inet_server_addr();"
+          // );
+          // console.log("DATABASE INFO:", result);
+
+
           // Tables sync karein
           await sequelize.sync({ alter: true })
 

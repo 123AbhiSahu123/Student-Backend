@@ -1,6 +1,7 @@
 import {
     loginService,
-    getAllStudentsService
+    getAllStudentsService,
+    deleteStudentService,
 } from "../services/superAdminService.js";
 
 
@@ -21,7 +22,6 @@ export const login = async (req, res) => {
         const result = await loginService(email, password);
         res.status(200).json(result);
     } catch (err) {
-
         res.status(401).json({
             success: false,
             message: err.message,
@@ -29,6 +29,22 @@ export const login = async (req, res) => {
 
     }
 }
+
+// =======================
+// Super Admin Logout
+// =======================
+export const logout = async (req, res) => {
+    try {
+        return res.status(200).json({
+            message: "Super Admin logout sucessfull"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message
+        });
+    }
+};
+
 
 // =======================
 // Get All Students
@@ -53,53 +69,19 @@ export const getAllStudents = async (req, res) => {
 
 
 // =======================
-// Get Student By Id
-// =======================
-
-// export const getStudentById = async (req, res) => {
-
-//     try {
-
-//         const student = await getStudentByIdService(req.params.id);
-
-//         res.status(200).json({
-//             success: true,
-//             student,
-//         });
-
-//     } catch (error) {
-
-//         res.status(404).json({
-//             success: false,
-//             message: error.message,
-//         });
-
-//     }
-
-// };
-
-
-
-
-// =======================
 // Delete Student
 // =======================
 
-// export const deleteStudent = async (req, res) => {
+export const deleteStudent = async (req, res) => {
 
-//     try {
-
-//         const result = await deleteStudentService(req.params.id);
-
-//         res.status(200).json(result);
-
-//     } catch (error) {
-
-//         res.status(404).json({
-//             success: false,
-//             message: error.message,
-//         });
-
-//     }
-
-// };
+    try {
+        const { id } = req.params;
+        const result = await deleteStudentService(id);
+        return res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};

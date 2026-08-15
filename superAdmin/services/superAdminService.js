@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User, Data } from "../../models/stumodels.js";
 import superAdminConfig from "../../config/superAdminConfig.js";
+import sequelize from "../../config/db.js";
 
 
 // =======================
@@ -62,64 +63,59 @@ export const getAllStudentsService = async () => {
 };
 
 
-
-
-// =======================
-// Get Student By Id
-// =======================
-
-// export const getStudentByIdService = async (id) => {
-
-//     const student = await User.findByPk(id, {
-
-//         attributes: {
-//             exclude: ["password"],
-//         },
-
-//         include: [
-//             {
-//                 model: Data,
-//                 as: "studentData",
-//             },
-//         ],
-//     });
-
-//     if (!student) {
-//         throw new Error("Student Not Found");
-//     }
-
-//     return student;
-// };
-
-
-
-
 // =======================
 // Delete Student
 // =======================
 
-// export const deleteStudentService = async (id) => {
+export const deleteStudentService = async (id) => {
+    const transaction = await sequelize.transaction();
 
-//     const student = await User.findByPk(id);
+    try {
+        const student = await User.findByPk(id, {
+            attributes: ["id", "name", "email"],
+            include: [
+                {
+                    model: Data,
+                    as: "studentData",
+                    attributes: ["course", "phone", "age", "location"],
+                },
+            ],
+            transaction,
+        })
+        if (!student) {
+            await transaction.rollback();
+            throw new Error("Student Not Found");
+        }
+        // Delete student profile/data first
+        await Data.destroy({
+            where: {
+                UserId: id,
+            },
+            transaction,
+        });
 
-//     if (!student) {
-//         throw new Error("Student Not Found");
-//     }
+        // Delete user
+        await User.destroy({
+            where: {
+                id,
+            },
+            transaction,
+        });
 
-//     await Data.destroy({
-//         where: {
-//             UserId: id,
-//         },
-//     });
+        // Everything successful
+        await transaction.commit();
+        // Convert Sequelize object to normal JSON
+        const deletedStudent = student.toJSON();
 
-//     await User.destroy({
-//         where: {
-//             id,
-//         },
-//     });
+        return {
+            success: true,
+            message: "Student Deleted Successfully",
+            deletedStudent: deletedStudent,
+        };
 
-//     return {
-//         success: true,
-//         message: "Student Deleted Successfully",
-//     };
-// };
+    } catch (error) {
+        // If anything fails, undo all changes
+        await transaction.rollback();
+        throw error;
+    }
+};
