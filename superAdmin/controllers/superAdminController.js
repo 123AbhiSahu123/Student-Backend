@@ -52,15 +52,24 @@ export const logout = async (req, res) => {
 
 export const getAllStudents = async (req, res) => {
     try {
-        const students = await getAllStudentsService();
-        res.status(200).json({
-            success: true,
-            totalStudents: students.length
-            ,
-            students,
+        const {
+            page,
+            limit,
+            search,
+            fromDate,
+            toDate,
+        } = req.query;
+        const result = await getAllStudentsService({
+            page,
+            limit,
+            search,
+            fromDate,
+            toDate,
         });
+        return res.status(200).json(result);
     } catch (error) {
-        res.status(500).json({
+        console.error("Get Students Error:", error);
+        return res.status(500).json({
             success: false,
             message: error.message,
         });

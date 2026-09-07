@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
 import { User, Data } from "../../models/stumodels.js";
 import superAdminConfig from "../../config/superAdminConfig.js";
 import sequelize from "../../config/db.js";
@@ -41,10 +42,77 @@ export const loginService = async (email, password) => {
 // Get All Students
 // =======================
 
-export const getAllStudentsService = async () => {
+export const getAllStudentsService = async ({
+    page = 1,
+    limit = 10,
+    search = "",
+    fromDate = "",
+    toDate = ""
+}) => {
 
-    const students = await User.findAll({
+    page = Number(page);
+    limit = Number(limit);
 
+    const offset = (page - 1) * limit;
+    const where = {};
+
+    //SEARCH
+    if (search.trim()) {
+        where[Op.or] = [
+            {
+                name: {
+                    [Op.iLike]: `%${search}%`,
+                },
+            },
+            {
+                email: {
+                    [Op.iLike]: `%${search}%`,
+                },
+            },
+            {
+                "$studentData.phone$": {
+                    [Op.iLike]: `%${search}%`,
+                },
+            },
+            {
+                "$studentData.course$": {
+                    [Op.iLike]: `%${search}%`,
+                },
+            },
+            {
+                "$studentData.location$": {
+                    [Op.iLike]: `%${search}%`,
+                },
+            },
+        ];
+    }
+
+    // DATE FILTER
+    if (fromDate || toDate) {
+
+        where.createdAt = {};
+
+        if (fromDate) {
+            where.createdAt[Op.gte] = new Date(
+                `${fromDate}T00:00:00.000Z`
+            );
+        }
+
+        if (toDate) {
+            const nextDay = new Date(
+                `${toDate}T00:00:00.000Z`
+            );
+
+            nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+
+            where.createdAt[Op.lt] = nextDay;
+        }
+    }
+
+    // FETCH
+
+    const { count, rows } = await User.findAndCountAll({
+        where,
         attributes: {
             exclude: ["password"],
         },
@@ -57,9 +125,29 @@ export const getAllStudentsService = async () => {
         ],
 
         order: [["createdAt", "DESC"]],
+
+        limit,
+        offset,
+        distinct: true,
     });
 
-    return students;
+    // TOTAL DATABASE STUDENTS
+    const totalStudents = await User.count();
+
+    // TOTAL FILTERED PAGES
+    const totalPages = Math.ceil(count / limit);
+
+    return {
+        success: true,
+        totalStudents,
+        totalFilteredStudents: count,
+        current: page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+        students: rows,
+    };
 };
 
 
