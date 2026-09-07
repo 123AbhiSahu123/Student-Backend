@@ -25,12 +25,20 @@ export const registerUserService = async ({ name, email, password }) => {
 export const loginUserService = async ({ email, password }) => {
     const user = await User.findOne({
         where: { email },
+        include: [
+            {
+                model: Data,
+                as: "studentData",
+                attributes: ["course", "phone", "age", "location"]
+            }
+        ]
     });
 
     if (!user) {
         throw new Error("User don't find!");
     }
 
+    // Password check
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -38,7 +46,10 @@ export const loginUserService = async ({ email, password }) => {
     }
 
     const token = jwt.sign(
-        { id: user.id },
+        { 
+            id: user.id,
+            email:user.email
+        },
         process.env.JWT_SECRET,
         {
             expiresIn: "1d",
@@ -53,6 +64,7 @@ export const loginUserService = async ({ email, password }) => {
             name: user.name,
             email: user.email,
         },
+        hasData: !!user.studentData
     };
 };
 
