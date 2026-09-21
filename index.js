@@ -15,7 +15,7 @@ const app = express();
 // });
 
 app.use(cors({
-     origin: ["http://localhost:5173", "https://student-frontend-alpha-lyart.vercel.app"],
+     origin: ["http://localhost:5173", "https://adminstudentdashboard.vercel.app"],
      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      credentials: true
 }));
