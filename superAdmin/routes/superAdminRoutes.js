@@ -1,6 +1,7 @@
 import express from "express"; 
 import {
     login,
+    getDashboardStats,
     getAllStudents,
     deleteStudent,
     logout,
@@ -19,6 +20,16 @@ router.post("/login", login);
 // Logout
 // ==========================
 router.post("/logout", superAdminAuth, logout);
+
+
+// ==========================
+//Dashboard
+// ==========================
+router.get(
+    "/dashboard",
+    superAdminAuth,
+    getDashboardStats
+);
 
 
 // ==========================

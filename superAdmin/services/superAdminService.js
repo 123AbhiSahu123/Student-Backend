@@ -36,6 +36,52 @@ export const loginService = async (email, password) => {
     };
 };
 
+// =======================
+// Super Admin Dashboard
+// =======================
+
+export const getDashboardStatsService = async (period = "week") => {
+
+    // Total Students
+    const totalStudents = await User.count();
+
+
+    // Total Courses
+    const courses = await Data.findAll({
+        attributes: ["course"],
+        group: ["course"],
+    });
+    const totalCourses = courses.length;
+
+
+    // Academic Performance Labels
+    let labels = [];
+    if(period === "week") {
+        labels = [
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        ]
+    }
+    else if (period === "fornight") {
+        labels = [
+        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        ]
+    }
+    else if (period === "month") {
+        labels = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+    }
+
+    return {
+        success: true,
+        totalStudents,
+        totalCourses,
+        academicPerformance: {
+            labels
+        }
+    };
+};
+
 
 
 // =======================

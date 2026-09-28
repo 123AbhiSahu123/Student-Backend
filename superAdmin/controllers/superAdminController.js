@@ -1,5 +1,6 @@
 import {
     loginService,
+    getDashboardStatsService,
     getAllStudentsService,
     deleteStudentService,
 } from "../services/superAdminService.js";
@@ -29,6 +30,34 @@ export const login = async (req, res) => {
 
     }
 }
+
+
+// =======================
+// Super Admin Dashboard
+// =======================
+export const getDashboardStats = async (req, res) => {
+
+    try {
+        const { period = "week" } = req.query;
+        const result = await getDashboardStatsService(period);
+
+        return res.status(200).json(result);
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard Stats Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+
 
 // =======================
 // Super Admin Logout
