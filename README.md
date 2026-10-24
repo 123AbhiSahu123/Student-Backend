@@ -1,11 +1,13 @@
 #) Live URL on Render:-https://student-dashboard-u1rj.onrender.com
 
 Super Admin:-
-POST :- /api/superadmin/login
-POST :- /api/superadmin/dashboard
-GET :- /api/superadmin/students
-DELETE:- /api/superadmin/students/:id
-POST:- /api/superadmin/logout
+POST :- /api/superadmin/login;
+POST :- /api/superadmin/dashboard;
+GET :- /api/superadmin/students;
+DELETE:- /api/superadmin/students/:id;
+POST:-  /api/superadmin/teacher/register;
+GET:- /api/superadmin/teacher/;
+POST:- /api/superadmin/logout;
 
 GET :- /health
 POST :- /api/register
