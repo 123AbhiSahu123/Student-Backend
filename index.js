@@ -1,10 +1,11 @@
 import express from 'express';
 import sequelize from './config/db.js';
 import { User, Data } from './models/stumodels.js';
+import Teacher from './models/teacherModel.js';
 import stuRoutes from './routes/sturoutes.js'
 import cors from "cors";
 import superAdminRoutes from "./superAdmin/routes/superAdminRoutes.js"
-
+import teacherRoutes from "./superAdmin/teacher/teacherRoute.js";
 const app = express();
 
 
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use('/api', stuRoutes);
 app.use("/api/superadmin", superAdminRoutes);
+app.use("/api/superadmin/teacher", teacherRoutes);
 app.get('/health', (req, res) => {
      res.send("Good ok")
 })
